@@ -1,30 +1,3 @@
-// <script type="text/javascript" src="http://24.16.255.56:8888/socket.io/socket.io.js"></script>
-/*window.onload = function () {
-  var socket = io.connect("24.16.255.56:8888");
-
-  socket.on("load", function (data) {
-      console.log(data);
-  });
-
-  var text = document.getElementById("text");
-  var saveButton = document.getElementById("save");
-  var loadButton = document.getElementById("load");
-
-  //Needs to save the board state, doesn't need neighbors, that can be rebuilt.
-  saveButton.onclick = function () {
-    console.log("save");
-    text.innerHTML = "Saved."
-    socket.emit("save", { studentname: "Shannon Weston", statename: "aState", data: ""});
-  };
-
-  loadButton.onclick = function () {
-    console.log("load");
-    text.innerHTML = "Loaded."
-    socket.emit("load", { studentname: "Shannon Weston", statename: "aState" });
-  };
-
-};*/
-
 function Board(game, seed, cells) {
     this.game = game;
     this.ctx = this.game.ctx;
@@ -105,6 +78,34 @@ Board.prototype.setSeed = function () {
             }
             break;
         case 'glider':
+            var anchorX = 2;
+            var anchorY = 2;
+            for(var i = 0; i < this.state.length; i++)  {
+                if(this.state[i].x === anchorX - 1) {
+                    if(this.state[i].y === anchorY + 1) {
+                        this.nextState[i].alive = true;
+                    }
+
+                }
+                if(this.state[i].x === anchorX) {
+                    if(this.state[i].y === anchorY - 1) {
+                        this.nextState[i].alive = true;
+                    }
+                    if(this.state[i].y === anchorY + 1) {
+                        this.nextState[i].alive = true;
+                    }
+
+                }
+                if(this.state[i].x === anchorX + 1) {
+                    if(this.state[i].y === anchorY) {
+                        this.nextState[i].alive = true;
+                    }
+                    if(this.state[i].y === anchorY + 1) {
+                        this.nextState[i].alive = true;
+                    }
+
+                }
+            }
             break;
     }
 }
@@ -309,8 +310,50 @@ AM.downloadAll(function () {
     var gameEngine = new GameEngine();
     gameEngine.init(ctx);
 
-    gameEngine.addEntity(new Board(gameEngine, 'blinker', 5));
+    // <script type="text/javascript" src="http://24.16.255.56:8888/socket.io/socket.io.js"></script>
+    window.onload = function () {
+        //var socket = io.connect("24.16.255.56:8888");
+    
+        /*socket.on("load", function (data) {
+            console.log(data);
+        });*/
+    
+        var text = document.getElementById("text");
+        var saveButton = document.getElementById("save");
+        var loadButton = document.getElementById("load");
+        var blockButton = document.getElementById("Block");
+        var blinkerButton = document.getElementById("Blinker");
+        var gliderButton = document.getElementById("Glider");
+    
+        //Needs to save the board state, doesn't need neighbors, that can be rebuilt.
+        saveButton.onclick = function () {
+            console.log("save");
+            text.innerHTML = "Saved."
+            //socket.emit("save", { studentname: "Shannon Weston", statename: "aState", data: ""});
+        };
+    
+        loadButton.onclick = function () {
+            console.log("load");
+            text.innerHTML = "Loaded."
+            //socket.emit("load", { studentname: "Shannon Weston", statename: "aState" });
+        };
+    
+        blockButton.onclick = function () {
+            gameEngine.addEntity(new Board(gameEngine, 'block', 4));
+        }
+
+        blinkerButton.onclick = function () {
+            gameEngine.addEntity(new Board(gameEngine, 'blinker', 5));
+        }
+
+        gliderButton.onclick = function () {
+            gameEngine.addEntity(new Board(gameEngine, 'glider', 25));
+        }
+    };
+
+    //gameEngine.addEntity(new Board(gameEngine, 'blinker', 5));
     //gameEngine.addEntity(new Board(gameEngine, 'block', 4));
+    //gameEngine.addEntity(new Board(gameEngine, 'glider', 25));
 
 
     gameEngine.start();
