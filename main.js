@@ -300,6 +300,59 @@ Board.prototype.draw = function () {
     }*/    
 } 
 
+Board.prototype.setBoard = function (board) {
+    console.log(board);
+    var j = 0;
+    for(var i = 0; i < this.state.length; i++) {
+        //console.log(this.state[i].x);
+        //console.log(board[j])
+        if(j < board.length) {
+            if(this.state[i].x === board[j].x) {
+                if(this.state[i].y === board[j].y) {
+                    j++;
+                    this.nextState[i].alive = true;
+                    console.log("x: " + this.nextState[i].x + " y: " + this.state[i].y);
+                }
+            }
+        }
+    }
+
+    this.draw();
+}
+
+Board.prototype.clearBoard = function () {
+    for(var i = 0; i < this.state.length; i++) {
+        this.state[i].alive = false;
+    }
+}
+
+Board.prototype.getBoard = function () {
+    var alive = [];
+    for(var i = 0; i < this.state.length; i++) {
+        if(this.state[i].alive === true) {
+            alive.push(this.state[i]);
+        }
+    }
+
+    return {board: alive, seed: this.seed};
+    //return alive;
+}
+
+Board.prototype.loadBoard = function(data) {
+    //load saved state as next state
+    //console.log(data);
+    var board = data.data.board;
+    var seed = data.data.seed;
+    //console.log(board);
+    this.clearBoard();
+    this.setBoard(board);
+    this.seed = seed;
+    //var newBoard = new Board();
+    //newBoard.setBoard(board);
+    //newBoard.seed = seed;
+
+}
+
 var AM = new AssetManager();
 AM.queueDownload("./images/Link3.png");
 
@@ -312,11 +365,12 @@ AM.downloadAll(function () {
 
     // <script type="text/javascript" src="http://24.16.255.56:8888/socket.io/socket.io.js"></script>
     window.onload = function () {
-        //var socket = io.connect("24.16.255.56:8888");
+        var socket = io.connect("http://24.16.255.56:8888");
     
-        /*socket.on("load", function (data) {
-            console.log(data);
-        });*/
+        socket.on("load", function (data) {
+            //console.log(data);
+            gameEngine.load(data);
+        });
     
         var text = document.getElementById("text");
         var saveButton = document.getElementById("save");
@@ -329,13 +383,23 @@ AM.downloadAll(function () {
         saveButton.onclick = function () {
             console.log("save");
             text.innerHTML = "Saved."
-            //socket.emit("save", { studentname: "Shannon Weston", statename: "aState", data: ""});
+            //create JSON for output
+            var board = gameEngine.save();
+            /*for(var i = 0; i < board.length; i++) {
+                console.log(board[i]);
+            }*/
+            //console.log(board);
+            socket.emit("save", { studentname: "Shannon Weston", statename: "LivingBoard", data: board});
         };
     
         loadButton.onclick = function () {
             console.log("load");
             text.innerHTML = "Loaded."
-            //socket.emit("load", { studentname: "Shannon Weston", statename: "aState" });
+            //var board;
+            socket.emit("load", { studentname: "Shannon Weston", statename: "LivingBoard"});
+            //recreate Board from JSON
+            //console.log(board);
+
         };
     
         blockButton.onclick = function () {
@@ -354,7 +418,6 @@ AM.downloadAll(function () {
     //gameEngine.addEntity(new Board(gameEngine, 'blinker', 5));
     //gameEngine.addEntity(new Board(gameEngine, 'block', 4));
     //gameEngine.addEntity(new Board(gameEngine, 'glider', 25));
-
 
     gameEngine.start();
     console.log("All Done!");

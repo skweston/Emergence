@@ -67,6 +67,7 @@ GameEngine.prototype.startInput = function () {
 
 GameEngine.prototype.addEntity = function (entity) {
     //console.log('added entity');
+    this.Board = entity;
     this.entities.push(entity);
 }
 
@@ -93,6 +94,14 @@ GameEngine.prototype.loop = function () {
     //this.clockTick = this.timer.tick();
     //this.update();
     //this.draw();
+}
+
+GameEngine.prototype.save = function () {
+    return this.Board.getBoard();
+}
+
+GameEngine.prototype.load = function (data) {
+    this.Board.loadBoard(data);
 }
 
 function Timer() {
