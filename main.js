@@ -120,10 +120,6 @@ Board.prototype.checkMyNeighbors = function (cell) {
     for(var i = 0; i < this.state.length; i++) {
         var them = this.state[i];
         if(me !== them) {
-            //console.log("me");
-            //console.log(me);
-            //console.log("them");
-            //console.log(this.state[i]);
             if(me.x > 0 && them.x === me.x - 1) { 
                 if(me.y > 0 && them.y === me.y - 1) {
                     //console.log("neighbor");
@@ -198,26 +194,13 @@ Board.prototype.checkMyNeighbors = function (cell) {
         }
     }
 
-    //console.log("living: " + living);
     return living;
 }
 
 Board.prototype.update = function () {
-    //console.log("board update");
     this.turn++;
     console.log(this.turn);
     var living = 0;
-
-    /*console.log("update top");
-    console.log("state");
-    for(var i = 0; i <  this.cells * this.cells; i++) {
-        console.log(this.state[i]);
-    }
-
-    console.log("nextState");
-    for(var i = 0; i <  this.cells * this.cells; i++) {
-        console.log(this.nextState[i]);
-    }*/
 
     for(var i = 0; i < this.state.length; i++) {
         var cell = this.state[i];
@@ -243,21 +226,10 @@ Board.prototype.update = function () {
         }
     }
 
-    /*console.log("update bottom");
-    console.log("state");
-    for(var i = 0; i <  this.cells * this.cells; i++) {
-        console.log(this.state[i]);
-    }
-
-    console.log("nextState");
-    for(var i = 0; i <  this.cells * this.cells; i++) {
-        console.log(this.nextState[i]);
-    }*/
     this.draw();
 }
 
 Board.prototype.draw = function () {
-    //console.log("drawing");
     var width = this.game.ctx.canvas.width / this.cells;
     for(var i = 0; i < this.nextState.length; i++) {
         if(this.nextState[i].alive) {
@@ -269,43 +241,16 @@ Board.prototype.draw = function () {
         this.ctx.fillRect(this.nextState[i].x * width, this.nextState[i].y * width, this.game.ctx.canvas.width/this.cells, this.game.ctx.canvas.height/this.cells);
     }
 
-    /*console.log("state");
-    for(var i = 0; i <  this.cells * this.cells; i++) {
-        console.log(this.state[i]);
-    }
-
-    console.log("nextState - was drawn");
-    for(var i = 0; i <  this.cells * this.cells; i++) {
-        console.log(this.nextState[i]);
-    }*/
-
-    //console.log("handoff");
-   //this.state = this.nextState;
     for(var i = 0; i < this.nextState.length; i++) {
-        //console.log("i: " + i);
-        //console.log(this.state[i]);
-        //console.log(this.nextState[i]);
         this.state[i].alive = this.nextState[i].alive;
         this.nextState[i].alive = false; 
     }
-
-    /*console.log("state");
-    for(var i = 0; i <  this.cells * this.cells; i++) {
-        console.log(this.state[i]);
-    }
-
-    console.log("nextState - should be blank");
-    for(var i = 0; i <  this.cells * this.cells; i++) {
-        console.log(this.nextState[i]);
-    }*/    
 } 
 
 Board.prototype.setBoard = function (board) {
     console.log(board);
     var j = 0;
     for(var i = 0; i < this.state.length; i++) {
-        //console.log(this.state[i].x);
-        //console.log(board[j])
         if(j < board.length) {
             if(this.state[i].x === board[j].x) {
                 if(this.state[i].y === board[j].y) {
@@ -335,22 +280,14 @@ Board.prototype.getBoard = function () {
     }
 
     return {board: alive, seed: this.seed};
-    //return alive;
 }
 
 Board.prototype.loadBoard = function(data) {
-    //load saved state as next state
-    //console.log(data);
     var board = data.data.board;
     var seed = data.data.seed;
-    //console.log(board);
     this.clearBoard();
     this.setBoard(board);
     this.seed = seed;
-    //var newBoard = new Board();
-    //newBoard.setBoard(board);
-    //newBoard.seed = seed;
-
 }
 
 var AM = new AssetManager();
@@ -363,12 +300,10 @@ AM.downloadAll(function () {
     var gameEngine = new GameEngine();
     gameEngine.init(ctx);
 
-    // <script type="text/javascript" src="http://24.16.255.56:8888/socket.io/socket.io.js"></script>
     window.onload = function () {
-        var socket = io.connect("https://24.16.255.56:8888");
+        var socket = io.connect("http://24.16.255.56:8888");
     
         socket.on("load", function (data) {
-            //console.log(data);
             gameEngine.load(data);
         });
     
@@ -379,26 +314,17 @@ AM.downloadAll(function () {
         var blinkerButton = document.getElementById("Blinker");
         var gliderButton = document.getElementById("Glider");
     
-        //Needs to save the board state, doesn't need neighbors, that can be rebuilt.
         saveButton.onclick = function () {
             console.log("save");
             text.innerHTML = "Saved."
-            //create JSON for output
             var board = gameEngine.save();
-            /*for(var i = 0; i < board.length; i++) {
-                console.log(board[i]);
-            }*/
-            //console.log(board);
             socket.emit("save", { studentname: "Shannon Weston", statename: "LivingBoard", data: board});
         };
     
         loadButton.onclick = function () {
             console.log("load");
             text.innerHTML = "Loaded."
-            //var board;
             socket.emit("load", { studentname: "Shannon Weston", statename: "LivingBoard"});
-            //recreate Board from JSON
-            //console.log(board);
 
         };
     
@@ -414,10 +340,6 @@ AM.downloadAll(function () {
             gameEngine.addEntity(new Board(gameEngine, 'glider', 25));
         }
     };
-
-    //gameEngine.addEntity(new Board(gameEngine, 'blinker', 5));
-    //gameEngine.addEntity(new Board(gameEngine, 'block', 4));
-    //gameEngine.addEntity(new Board(gameEngine, 'glider', 25));
 
     gameEngine.start();
     console.log("All Done!");
